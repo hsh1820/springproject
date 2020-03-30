@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="adminMapper">
+
+	<resultMap type="AdminMember" id="adminMemberResultSet">
+
+		<id property="memberNo" column="MEMBER_NO" />
+
+		<result property="memberEmail" column="MEMBER_EMAIL" />
+		<result property="memberPwd" column="MEMBER_PWD" />
+		<result property="memberName" column="MEMBER_NAME" />
+		<result property="enrollDate" column="ENROLLDATE" />
+		<result property="memberStatus" column="MEMBER_STATUS" />
+		<result property="memberPhone" column="PHONE_NUMBER" />
+		<result property="memberAddress" column="MEMBER_ADDR" />
+		<result property="memberGrade" column="MEMBER_GRADE" />
+		<result property="deptCode" column="DEPT_CODE" />
+		<result property="jobCode" column="JOB_CODE" />
+		<result property="holiday" column="MEMBER_HOLIDAY" />
+		<result property="memberIdNo" column="MEMBER_IDNO" />
+		<result property="gender" column="GENDER" />
+		<result property="extensionNumber" column="EXTENSION_NUMBER" />
+	</resultMap>
+
+	<resultMap type="AdminMemberView"
+		id="adminMemberViewResultSet">
+		<id property="memberNo" column="MEMBER_NO" />
+
+		<result property="memberName" column="MEMBER_NAME" />
+		<result property="deptName" column="DEPT_NAME" />
+		<result property="enrollDate" column="ENROLLDATE" />
+		<result property="memberStatus" column="MEMBER_STATUS" />
+	</resultMap>
+
+	<resultMap type="Notice" id="noticeResultSet">
+		<id property="noticeNo" column="NOTICE_NO" />
+
+		<result property="noticeTitle" column="NOTICE_TITLE" />
+		<result property="noticeContent" column="NOTICE_CONTENT" />
+		<result property="noticeCreateDate" column="NOTICE_CREATE_DATE" />
+		<result property="noticeUpdateDate" column="NOTICE_UPDATE_DATE" />
+		<result property="noticeCount" column="NOTICE_COUNT" />
+		<result property="memberNo" column="MEMBER_NO" />
+		<result property="noticeCode" column="NOTICE_CODE" />
+
+	</resultMap>
+
+	<resultMap type="MainSign" id="mainSignResultSet">
+		<id property="docNo" column="DOCNO" />
+		<result property="docTitle" column="DOCTITLE" />
+		<result property="memberNo" column="MEMBER_NO" />
+	</resultMap>
+
+	<resultMap type="ProfileImage" id="profileImageResultSet">
+		<id property="imageNo" column="IMAGE_NO" />
+		<result property="imageOriginName" column="IMAGE_ORIGIN_NAME" />
+		<result property="imageChangeName" column="IMAGE_CHANGE_NAME" />
+		<result property="imagePath" column="IMAGE_PATH" />
+		<result property="imageUploadDate" column="IMAGE_UPLOAD_DATE" />
+		<result property="imageStatus" column="IMAGE_STATUS" />
+		<result property="memberNo" column="MEMBER_NO" />
+	</resultMap>
+
+	<resultMap type="MainDeptBoard" id="deptResultSet">
+		<id property="boardNo" column="BOARD_NO" />
+		<result property="boardTitle" column="BOARD_TITLE" />
+		<result property="createDate" column="BOARD_CREATE_DATE" />
+		<result property="deptCode" column="DEPT_CODE" />
+		<result property="deptName" column="DEPT_NAME" />
+		<result property="memberNo" column="MEMBER_NO" />
+		<result property="memberName" column="MEMBER_NAME" />
+	</resultMap>
+
+	<resultMap type="MainCollaboBoard" id="collaboResultSet">
+		<id property="boardNo" column="COLLABO_NO" />
+		<result property="boardTitle" column="COLLABO_TITLE" />
+		<result property="createDate" column="COLLABO_CREATE_DATE" />
+		<result property="deptCode" column="COLLABO_DEPT" />
+		<result property="deptName" column="DEPT_NAME" />
+		<result property="memberNo" column="MEMBER_NO" />
+		<result property="memberName" column="MEMBER_NAME" />
+	</resultMap>
+	
+	<resultMap type="Attendance" id="AttendanceResultSet">
+		<id property="attendanceNo" column="ATTENDANCE_NO"/>
+		<result property="inTime" column="IN_TIME"/>
+		<result property="outTime" column="OUT_TIME"/>
+		<result property="inoutStatus" column="INOUT_STATUS"/>
+		<result property="memberNo" column="MEMBER_NO"/>
+	</resultMap>
+	
+	<!-- 메인 스케줄 -->
+	<resultMap type="Schedule" id="ScheduleResultSet">
+		<id property="ssNo" column="SSNO"/>
+		<result property="ssTitle" column="SSTITLE"/>
+		<result property="ssType" column="SSTYPE"/>
+		<result property="ssStartDate" column="SSSTARTDATE"/>
+		<result property="ssStartHour" column="SSSTARTHOUR"/>
+		<result property="ssStartMinute" column="SSSTARTMINUTE"/>
+		<result property="ssEndDate" column="SSENDDATE"/>
+		<result property="ssEndHour" column="SSENDHOUR"/>
+		<result property="ssEndMinute" column="SSENDMINUTE"/>
+		<result property="ssRepeatType" column="SSREPEATTYPE"/>
+		<result property="ssRepeatOption" column="SSREPEATOPTION"/>
+		<result property="ssRepeatEnd" column="SSREPEATEND"/>
+		<result property="ssContents" column="SSCONTENTS"/>
+		<result property="ssIsOpen" column="SSISOPEN"/>
+		<result property="updateDate" column="UPDATEDATE"/>
+		<result property="insertDate" column="INSERTDATE"/>
+		<result property="deleteFlag" column="DELETEFLAG"/>
+		<result property="memberNo" column="MEMBER_NO"/>
+	</resultMap>
+	
+	<!-- 결재자가 결재 해야할 리스트 볼때 -->
+   <resultMap type="SignTobeListView" id="SignTobeListViewResultSet">
+      <id property="docNo" column="DOCNO"/>
+      <result property="docTitle" column="DOCTITLE"/>
+      <result property="memberNo" column="MEMBER_NO"/>
+      <result property="memberName" column="MEMBER_NAME"/>
+      <result property="docStep" column="DOCSTEP"/>
+      <result property="dtNo" column="DTNO"/>
+      <result property="dTitle" column="DTITLE"/>
+      <result property="deptName" column="DEPTNM"/>
+      <result property="docStatus" column="DOCSTATUS"/>
+      <result property="ssResult" column="SSRESULT"/>
+      <result property="insertDate" column="INSERTDATE"/>
+   </resultMap>
+   
+	<!-- 로그인 -->
+	<select id="loginMember" parameterType="AdminMember"
+		resultMap="adminMemberResultSet">
+		SELECT * FROM MEMBER
+		WHERE MEMBER_EMAIL= #{memberEmail}
+		<!-- AND MEMBER_PWD= #{memberPwd} bcrypt 암호화 때문에 주석처리 -->
+		AND MEMBER_STATUS=1
+	</select>
+
+	<!-- 신규사원 등록 -->
+	<insert id="insertMember" parameterType="AdminMember">
+		INSERT INTO MEMBER
+		VALUES(SEQ_MNO.NEXTVAL,#{memberEmail},#{memberPwd},#{memberName},
+		DEFAULT,DEFAULT,#{memberPhone},DEFAULT,#{deptCode},#{jobCode},
+		DEFAULT,#{memberIdNo},#{gender},#{memberAddress},'070-555-5555')
+	</insert>
+
+	<!-- 이메일 중복 체크 -->
+	<select id="emailDupCheck" parameterType="string"
+		resultType="_int">
+		SELECT COUNT(*)
+		FROM MEMBER
+		WHERE MEMBER_EMAIL=#{memberEmail}
+	</select>
+
+	<!-- 사원 목록 조회 -->
+	<select id="selectMemberList" parameterType="map"
+		resultMap="adminMemberViewResultSet">
+		SELECT *
+		FROM V_ADMIN_MEMBER
+		<where>
+			<if test="searchValue != null">
+				<bind name="sv" value="'%' + _parameter.searchValue + '%'" />
+
+				<choose>
+					<when test="searchKey == 'memberName'">
+						AND MEMBER_NAME LIKE #{sv}
+					</when>
+					<when test="searchKey == 'deptName'">
+						AND DEPT_NAME LIKE #{sv}
+					</when>
+					<otherwise>
+						<choose>
+							<when test="_parameter.searchValue == '재직'">
+								AND MEMBER_STATUS = 1
+							</when>
+							<when test="_parameter.searchValue == '휴직'">
+								AND MEMBER_STATUS = 2
+							</when>
+							<otherwise>
+								AND MEMBER_STATUS = 3
+							</otherwise>
+
+						</choose>
+						<!-- AND ENROLLDATE LIKE #{sv} -->
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+	</select>
+
+	<!-- 사원 변경을 위한 사원 정보 가져오기 -->
+	<select id="detailAdminMember" parameterType="_int"
+		resultMap="adminMemberResultSet">
+		SELECT *
+		FROM MEMBER
+		WHERE MEMBER_NO=#{memberNo}
+	</select>
+
+	<!-- 메인화면의 공지사항 리스트 출력 -->
+	<select id="selectNoticeList" resultMap="noticeResultSet">
+		SELECT ROWNUM, NOTICE_TITLE,NOTICE_NO
+		FROM (SELECT NOTICE_TITLE,NOTICE_NO FROM NOTICE ORDER
+		BY NOTICE_NO DESC) 
+		WHERE ROWNUM<![CDATA[<=]]>3
+	</select>
+
+	<!-- 메인화면의 결재대기문서 리스트 출력 -->
+	<!-- 소희 결재해야할 리스트 목록 -->
+	<select id="selectMainSignList" parameterType="_int"
+		resultMap="SignTobeListViewResultSet">
+		SELECT * FROM 
+		(SELECT SD.DOCNO, DOCTITLE, SD.MEMBER_NO, M.MEMBER_NAME, SD.DOCSTEP,
+		SD.DTNO, SDT.DTITLE, DEPTNM,
+		DOCSTATUS,SS.SSRESULT,SD.INSERTDATE
+		FROM SGN_DOC SD
+		INNER JOIN MEMBER M ON (SD.MEMBER_NO=M.MEMBER_NO)
+		INNER JOIN SGN_DOCTYPE SDT ON (SDT.DTNO=SD.DTNO)
+		LEFT JOIN SGN_SIGN SS ON (SS.DOCNO=SD.DOCNO) AND SS.MEMBER_NO = #{memberNo}
+		WHERE SSTYPE!=0
+		AND SS.SSRESULT=0 AND SS.SSTEP=SD.DOCSTEP
+		AND SD.DELETEFLAG='N'
+		ORDER BY DOCNO DESC)
+		WHERE ROWNUM<![CDATA[<=]]>3
+	</select>
+
+	<!-- 관리자의 멤버 일부 변경 -->
+	<update id="updateAdminMember" parameterType="AdminMember">
+		UPDATE MEMBER SET
+		MEMBER_STATUS=#{memberStatus}, DEPT_CODE=#{deptCode},
+		JOB_CODE=#{jobCode} WHERE MEMBER_NO=#{memberNo}
+	</update>
+
+	<!-- 프로필 이미지 불러오기 -->
+	<select id="selectProfileImage" parameterType="_int"
+		resultMap="profileImageResultSet">
+		SELECT * FROM PROFILE_IMAGE
+		WHERE MEMBER_NO=#{memberNo}
+	</select>
+
+	<select id="selectDeptList" parameterType="string"
+		resultMap="deptResultSet">
+		SELECT *
+		FROM (SELECT DB.BOARD_NO, DB.BOARD_TITLE,
+		DB.BOARD_CREATE_DATE,
+		DB.DEPT_CODE, D.DEPT_NAME, DB.MEMBER_NO,
+		M.MEMBER_NAME
+		FROM DEPT_BOARD DB
+		INNER JOIN DEPARTMENT D ON
+		(DB.DEPT_CODE=D.DEPT_CODE)
+		INNER JOIN MEMBER M
+		ON(DB.MEMBER_NO=M.MEMBER_NO)
+		WHERE DB.DEPT_CODE=#{deptCode} AND
+		DB.BOARD_STATUS='Y'
+		ORDER BY DB.BOARD_CREATE_DATE DESC)
+		WHERE ROWNUM<![CDATA[<=]]>4
+	</select>
+
+	<select id="selectCollaboList" parameterType="string"
+		resultMap="collaboResultSet">
+		SELECT *
+		FROM (SELECT CB.COLLABO_NO, CB.COLLABO_TITLE,
+		CB.COLLABO_CREATE_DATE,
+		CB.COLLABO_DEPT, D.DEPT_NAME, CB.MEMBER_NO,
+		M.MEMBER_NAME
+		FROM COLLABO_BOARD CB
+		INNER JOIN DEPARTMENT D ON
+		(CB.COLLABO_DEPT=D.DEPT_CODE)
+		INNER JOIN MEMBER M
+		ON(CB.MEMBER_NO=M.MEMBER_NO)
+		WHERE CB.COLLABO_DEPT=#{deptCode} AND
+		CB.COLLABO_DELETE_YN='Y'
+		ORDER BY CB.COLLABO_CREATE_DATE DESC)
+		WHERE
+		ROWNUM<![CDATA[<=]]>4
+	</select>
+
+  	<!-- 출근 버튼 클릭 시 데이터 삽입 -->
+	<insert id="insertInTime" parameterType="Attendance">
+	INSERT INTO ATTENDANCE (ATTENDANCE_NO,IN_TIME,MEMBER_NO)
+	VALUES(SEQ_ATTENDANCE.NEXTVAL,SYSDATE,#{memberNo})
+	</insert>
+	
+	<!-- 출근버튼 눌렀는지 아닌지 확인 -->
+	<select id="checkAttendance" parameterType="_int" resultMap="AttendanceResultSet">
+	SELECT *
+	FROM(SELECT * FROM ATTENDANCE WHERE TO_CHAR(IN_TIME,'YYYY-MM-DD') = TO_CHAR(SYSDATE,'YYYY-MM-DD') AND MEMBER_NO=#{memberNo} ORDER BY IN_TIME DESC)
+	WHERE ROWNUM<![CDATA[=]]>1
+	</select>
+	
+	<!-- 퇴근 버튼 눌렀을 때 퇴근 시간 찍기 -->
+	<update id="updateOutTime" parameterType="_int">
+	UPDATE (SELECT * FROM ATTENDANCE
+	WHERE TO_CHAR(IN_TIME,'YYYY-MM-DD') = TO_CHAR(SYSDATE,'YYYY-MM-DD') AND
+	MEMBER_NO=#{memberNo})
+	SET OUT_TIME = SYSDATE
+	</update>
+	
+	<!-- 해당 Attendance 불러오기 -->
+	<select id="selectAttendance" parameterType="_int" resultMap="AttendanceResultSet">
+	SELECT * FROM ATTENDANCE
+	WHERE TO_CHAR(IN_TIME,'YYYY-MM-DD') = TO_CHAR(SYSDATE,'YYYY-MM-DD')
+	AND MEMBER_NO=#{memberNo} ORDER BY IN_TIME DESC
+	</select>
+	
+	<!-- inoutStatus 변경 -->
+	<update id="updateInoutStatus" parameterType="map">
+	UPDATE (SELECT * FROM ATTENDANCE
+	WHERE TO_CHAR(IN_TIME,'YYYY-MM-DD') = TO_CHAR(SYSDATE,'YYYY-MM-DD') AND
+	MEMBER_NO=#{memberNo})
+	SET INOUT_STATUS = #{inoutStatus}
+	</update>
+	
+	<!-- 스케줄 목록 가져오기 -->
+	<select id="selectScheduleList" parameterType="_int" resultMap="ScheduleResultSet">
+		SELECT * FROM SCH_SCHEDULE
+		WHERE MEMBER_NO=#{memberNo}
+	</select>
+</mapper>

@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="collaboMapper">
+
+<resultMap type="CollaboBoard" id="collaboBoardResultSet">
+	<id property="collaboNo" column="COLLABO_NO"/>
+	<result property="collaboTitle" column="COLLABO_TITLE"/>
+	<result property="collaboContent" column="COLLABO_CONTENT"/>
+	<result property="collaboCreateDate" column="COLLABO_CREATE_DATE"/>
+	<result property="collaboUpdateDate" column="COLLABO_UPDATE_DATE"/>
+	<result property="collaboCount" column="COLLABO_COUNT"/>
+	<result property="collaboDept" column="COLLABO_DEPT"/>
+	<result property="collaboStartDate" column="COLLABO_START_DATE"/>
+	<result property="collaboStartDate" column="COLLABO_END_DATE"/>
+	<result property="collaboEndDate" column="COLLABO_END_DATE"/>
+	<result property="collaboDeleteYn" column="COLLABO_DELETE_YN"/>
+	<result property="collaboStatus" column="COLLABO_STATUS"/>
+	<result property="memberNo" column="MEMBER_NO"/>
+	<result property="taskAccepter" column="TASK_ACCEPTER"/>
+	<result property="memberName" column="MEMBER_NAME"/>
+	<result property="memberEmail" column="MEMBER_EMAIL"/>
+	<result property="taskAccepterName" column="TASK_ACCEPTER_NAME"/>
+	<result property="wirterDeptName" column="WRITER_DEPT_NAME"/>
+	<result property="collaboStatusTitle" column="COLLABO_STATUS_TITLE"/>
+	<result property="writerJobName" column="WRITER_JOB_NAME"/>
+	<result property="writerDeptCode" column="WRITER_DEPT_CODE"/>
+	<result property="cmmtCount" column="CMMT_COUNT"/>
+</resultMap>
+
+<resultMap type="CollaboFile" id="collaboFileResultMap">
+	<id property="fileNo" column="FILE_NO"/>
+	<result property="fileOriginNm" column="FILE_ORIGIN_NM"/>
+	<result property="fileChangeNm" column="FILE_CHANGE_NM"/>
+	<result property="filePath" column="FILE_PATH"/>
+	<result property="fileStatus" column="FILE_STATUS"/>
+	<result property="collaboNo" column="COLLABO_NO"/>
+</resultMap>
+
+<resultMap type="DeptList" id="DeptListResultMap">
+	<result property="MemberNo" column="MEMBER_NO"/>
+	<result property="memberName" column="MEMBER_NAME"/>
+	<result property="jobName" column="JOB_NAME"/>
+	<result property="deptCode" column="DEPT_CODE"/>
+	<result property="deptName" column="DEPT_NAME"/>
+</resultMap>
+
+<resultMap type="CollaboCmmt" id="CollaboCmmtResultMap">
+	<result property="collaboCmmtNo" column="CBOARD_CMMT_NUM"/>
+	<result property="collaboCmmtContent" column="CBOARD_CMMT_CONTENT"/>
+	<result property="collaboCmmtCreateDt" column="CBOARD_CMMT_CREATE_DT"/>
+	<result property="collaboCmmtModifyDt" column="CBOARD_CMMT_MODIFY_DT"/>
+	<result property="collaboCmmtDeleteYn" column="CBOARD_CMMT_DELETE_YN"/>
+	<result property="memberName" column="MEMBER_NAME"/>
+	<result property="memberNo" column="MEMBER_NO"/>
+	<result property="collaboNo" column="COLLABO_NO"/>
+	<result property="jobCode" column="JOB_CODE"/>
+	<result property="jobName" column="JOB_NAME"/>
+	<result property="deptCode" column="DEPT_CODE"/>
+	<result property="deptName" column="DEPT_NAME"/>
+</resultMap>
+
+<!-- 협업 게시판 게시글 수 조회(+검색) -->
+<select id="getListCount" parameterType="map" resultType="_int">
+	SELECT COUNT(*) FROM COLLABO_LIST_VIEW
+	<where>
+		<if test="searchStatus > 0 ">
+			AND COLLABO_STATUS = #{searchStatus}
+			</if>
+	
+		<if test="searchValue != null">
+			<bind name="sv" value="'%' + _parameter.searchValue + '%'"/>
+			<choose>
+				<when test="searchKey == 'title'">
+					AND COLLABO_TITLE LIKE #{sv}
+				</when>
+				<when test="searchKey == 'content'">
+					AND COLLABO_CONTENT LIKE #{sv}
+				</when>
+				<when test="searchKey == 'writer'">
+					AND MEMBER_NAME LIKE #{sv}
+				</when>
+				<when test="searchKey == 'accepter'">
+					AND TASK_ACCEPTER_NAME LIKE #{sv}
+				</when>
+				<when test="searchKey == 'myself'">
+					AND MEMBER_NAME LIKE #{sv}
+				</when>
+				<when test="searchKey == 'myselfTask'">
+					AND TASK_ACCEPTER_NAME LIKE #{sv}
+				</when>
+				<otherwise>
+					AND (COLLABO_TITLE LIKE #{sv} 
+					OR COLLABO_CONTENT LIKE #{sv})
+				</otherwise>
+			</choose>
+			
+		</if>
+		<!-- <if test="searchStatus != null ">
+			<if test="searchStatus > 0 ">
+			<bind name="st" value="'%' + _parameter.searchStatus + '%'" />
+				AND COLLABO_STATUS LIKE #{st}
+			</if></if> -->
+			
+			AND COLLABO_DELETE_YN = 'Y'
+			ORDER BY COLLABO_NO DESC
+	</where>
+</select>
+
+<!-- 협업 게시판 리스트 조회 -->
+<select id="selectList" parameterType="_int" resultMap="collaboBoardResultSet">
+	SELECT * FROM COLLABO_LIST_VIEW
+	<where>
+		<if test="searchStatus > 0 ">
+			AND COLLABO_STATUS = #{searchStatus}
+			</if>
+	
+		<if test="searchValue != null">
+			<bind name="sv" value="'%' + _parameter.searchValue + '%'"/>
+			<choose>
+				<when test="searchKey == 'title'">
+					AND COLLABO_TITLE LIKE #{sv}
+				</when>
+				<when test="searchKey == 'content'">
+					AND COLLABO_CONTENT LIKE #{sv}
+				</when>
+				<when test="searchKey == 'writer'">
+					AND MEMBER_NAME LIKE #{sv}
+				</when>
+				<when test="searchKey == 'accepter'">
+					AND TASK_ACCEPTER_NAME LIKE #{sv}
+				</when>
+				<when test="searchKey == 'myself'">
+					AND MEMBER_NAME LIKE #{sv}
+				</when>
+				<when test="searchKey == 'myselfTask'">
+					AND TASK_ACCEPTER_NAME LIKE #{sv}
+				</when>
+				<otherwise>
+					AND (COLLABO_TITLE LIKE #{sv} 
+					OR COLLABO_CONTENT LIKE #{sv})
+				</otherwise>
+			</choose>
+			
+		</if>
+		<!-- <if test="searchStatus != null ">
+			<if test="searchStatus > 0 ">
+			<bind name="st" value="'%' + _parameter.searchStatus + '%'" />
+				AND COLLABO_STATUS LIKE #{st}
+			</if></if> -->
+			
+			AND COLLABO_DELETE_YN = 'Y'
+			ORDER BY COLLABO_NO DESC
+	</where>
+</select>
+  
+<!-- 협업 게시판 상세 조회 -->
+<select id="selectCollaboBoard" parameterType="_int" resultMap="collaboBoardResultSet">
+  SELECT * FROM COLLABO_LIST_VIEW WHERE COLLABO_NO = #{collaboNo} AND COLLABO_DELETE_YN = 'Y'
+</select>
+
+<!-- 협업 게시판 상세글 조회수 증가 -->
+<update id="increaseCount" parameterType="_int">
+	UPDATE COLLABO_BOARD SET COLLABO_COUNT = COLLABO_COUNT + 1 WHERE COLLABO_NO = #{collabo_no}
+</update>
+
+<!-- 협업 게시판 상세글 요청 부서 조회  -->
+<select id="selectDeptList" parameterType="string" resultMap="DeptListResultMap">
+	SELECT * FROM DEPT_LIST WHERE DEPT_CODE = #{deptCode} ORDER BY JOB_CODE DESC
+</select>
+
+<!-- 협업 게시판 요청등록 시 부서 리스트 조회 -->
+<select id="selectDept" resultMap="DeptListResultMap">
+	SELECT DEPT_CODE, DEPT_NAME FROM DEPARTMENT
+</select>
+
+
+<!-- 1. 협업 게시판 글 업로드 -->
+<insert id="insertCboard" parameterType="CollaboBoard">
+	INSERT INTO COLLABO_BOARD (COLLABO_NO,COLLABO_TITLE,COLLABO_CONTENT,COLLABO_CREATE_DATE,COLLABO_COUNT,COLLABO_DEPT,COLLABO_START_DATE,COLLABO_END_DATE,COLLABO_DELETE_YN,COLLABO_STATUS,MEMBER_NO) 
+	VALUES(SEQ_COLLA_BOARD_NO.NEXTVAL,#{collaboTitle},#{collaboContent},DEFAULT,0,#{collaboDept},#{collaboStartDate}, #{collaboEndDate},DEFAULT,DEFAULT,#{memberNo} )
+</insert>
+
+<!-- 2. 협업 게시판 보드 넘버 조회 -->
+<select id="selectNextNo" resultType="_int">
+	SELECT SEQ_COLLA_BOARD_NO.NEXTVAL FROM DUAL
+</select>
+
+<!-- 2. 협업 게시판 보드 넘버 조회 -->
+<select id="selectCurrNo" resultType="_int">
+	SELECT SEQ_COLLA_BOARD_NO.CURRVAL FROM DUAL
+</select>
+<!-- 3. 협업 파일 삽입 -->
+<insert id="insertCollaboFile" parameterType="CollaboFile" >
+	INSERT INTO COLLABO_FILE 
+	VALUES(SEQ_COLLA_FILE_NO.NEXTVAL, #{fileOriginNm}, #{fileChangeNm}, #{filePath}, DEFAULT, #{collaboNo})
+</insert>
+
+<!-- 협업 파일 목록 조회 -->
+<select id="selectCollaboFiles" parameterType="_int" resultMap="collaboFileResultMap">
+	SELECT * FROM COLLABO_FILE WHERE COLLABO_NO = #{collaboNo}
+</select>
+
+<!-- 협업 수락 업데이트 -->
+<update id="updateAccept" parameterType="CollaboBoard">
+	UPDATE COLLABO_BOARD SET TASK_ACCEPTER = #{taskAccepter}, COLLABO_STATUS = 2 WHERE COLLABO_NO = #{collaboNo}
+</update>
+
+<!-- 협업 거철 업데이트 -->
+<update id="updateReject" parameterType="CollaboBoard">
+	UPDATE COLLABO_BOARD SET TASK_ACCEPTER = #{taskAccepter}, COLLABO_STATUS = 3 WHERE COLLABO_NO = #{collaboNo}
+</update>
+
+<!-- 첨부파일 리스트 조회 -->
+<select id="selectFiles" parameterType="_int" resultMap="collaboFileResultMap">
+	SELECT * FROM COLLABO_FILE WHERE COLLABO_NO =#{collaboNo} AND FILE_STATUS = 'Y'
+</select>
+
+<!-- 협업 게시글 수정 -->
+<update id="updateDetail" parameterType="CollaboBoard" >
+	UPDATE COLLABO_BOARD SET collabo_Title = #{collaboTitle}, 
+							collabo_Content = #{collaboContent} ,
+							collabo_Update_Date = SYSDATE,
+							collabo_Dept = #{collaboDept},
+							collabo_Start_Date = #{collaboStartDate},
+							collabo_End_Date = #{collaboEndDate} 
+	WHERE COLLABO_NO = #{collaboNo}
+</update>
+
+<!-- 협업 게시글 삭제 -->
+<update id="deleteDetail" parameterType="_int">
+	UPDATE COLLABO_BOARD SET COLLABO_DELETE_YN = 'N' WHERE COLLABO_NO = #{collaboNo}
+</update>
+
+<!-- 협업 게시판 댓글 등록 -->
+<insert id="insertReply" parameterType="CollaboCmmt">
+	INSERT INTO COLLABO_COMMENT(CBOARD_CMMT_NUM,CBOARD_CMMT_CONTENT,CBOARD_CMMT_CREATE_DT,CBOARD_CMMT_DELETE_YN,MEMBER_NO,COLLABO_NO) 
+	VALUES(SEQ_CBOARD_CMMT_NO.NEXTVAL, #{collaboCmmtContent},DEFAULT, DEFAULT, #{memberNo}, #{collaboNo})
+</insert>
+
+<!-- 댓글 목록 조회 -->
+<select id="selectReplyList" parameterType="_int" resultMap="CollaboCmmtResultMap">
+	SELECT * FROM VIEW_COLLABO_CMMT WHERE COLLABO_NO = #{collaboNo} 
+									 AND CBOARD_CMMT_DELETE_YN ='Y' 
+</select>
+
+<!-- 댓글 삭제 -->
+<update id="deleteReply" parameterType="_int">
+	UPDATE COLLABO_COMMENT SET CBOARD_CMMT_DELETE_YN ='N'
+	WHERE CBOARD_CMMT_NUM = #{collaboCmmtNo} 
+</update>
+
+<!-- 댓글 수정 -->
+<update id="updateReply" parameterType="CollaboCmmt">
+	UPDATE COLLABO_COMMENT SET CBOARD_CMMT_CONTENT = #{collaboCmmtContent}
+	WHERE CBOARD_CMMT_NUM = #{collaboCmmtNo}
+</update>
+
+<!-- 댓글 수 조회 -->
+<select id="replyCount" parameterType="_int" resultType="_int">
+	SELECT COUNT(*) FROM VIEW_COLLABO_CMMT
+	WHERE COLLABO_NO = #{collaboNo}
+	AND CBOARD_CMMT_DELETE_YN = 'Y'
+</select>
+
+<!-- 협업 요청 메일 발송용 리스트 조회 -->
+<select id="selectEmailList" parameterType="_int" resultMap="collaboBoardResultSet">
+	select DISTINCT(MEMBER_EMAIL)
+	from MEMBER M
+	where DEPT_CODE IN (
+	Select Regexp_Substr((SELECT COLLABO_DEPT 
+	FROM COLLABO_LIST_VIEW 
+	WHERE COLLABO_NO = #{collaboNo}) ,'[^,]+', 1, Level) From Dual
+	Connect By Regexp_Substr((SELECT COLLABO_DEPT 
+	FROM COLLABO_LIST_VIEW 
+	WHERE COLLABO_NO = #{collaboNo}) , '[^,]+', 1, Level) Is Not Null )
+	OR DEPT_CODE = (SELECT WRITER_DEPT_CODE 
+	            FROM COLLABO_LIST_VIEW 
+	            WHERE COLLABO_NO = #{collaboNo} )
+</select>
+
+<!-- 첨부파일 리스트 조회 -->
+<select id="selectFile" parameterType="_int" resultMap="collaboFileResultMap">
+	SELECT * FROM COLLABO_FILE WHERE COLLABO_NO =#{collaboNo} AND FILE_STATUS = 'Y'
+</select>
+
+<!-- 협업 파일 수정 -->
+<update id="updateCollaboFile" parameterType="CollaboFile">
+	UPDATE COLLABO_FILE SET
+	FILE_ORIGIN_NM = #{fileOriginNm},
+	FILE_CHANGE_NM = #{fileChangeNm}
+	WHERE FILE_NO = #{fileNo} 
+</update>
+</mapper>

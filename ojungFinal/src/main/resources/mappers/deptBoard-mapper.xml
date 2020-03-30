@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="deptBoardMapper">
+
+	<resultMap type="DeptBoard" id="DeptBoardResultSet">
+		<id property="boardNo" column="BOARD_NO" />
+		<result property="boardTitle" column="BOARD_TITLE" />
+		<result property="boardContent" column="BOARD_CONTENT" />
+		<result property="createDate" column="BOARD_CREATE_DATE" />
+		<result property="updateDate" column="BOARD_UPDATE_DATE" />
+		<result property="boardCount" column="BOARD_COUNT" />
+		<result property="boardStatus" column="BOARD_STATUS" />
+		<result property="deptCode" column="DEPT_CODE" />
+		<result property="memberNo" column="MEMBER_NO" />
+		<result property="memberName" column="MEMBER_NAME" />
+		<result property="deptName" column="DEPT_NAME" />
+		<result property="recnt" column="RECNT" />
+	</resultMap>
+
+	<resultMap type="DeptBoard" id="DeptResultSet">
+		<id property="deptCode" column="DEPT_CODE" />
+		<result property="deptName" column="DEPT_NAME" />
+	</resultMap>
+
+	<resultMap type="DeptBoardFile" id="dBoardFileReultSet">
+		<id property="fileNo" column="FILE_NO" />
+		<result property="fileOriginName" column="FILE_ORIGIN_NM" />
+		<result property="fileChangeName" column="FILE_CHANGE_NM" />
+		<result property="filePath" column="FILE_PATH" />
+		<result property="fileStatus" column="FILE_STATUS" />
+		<result property="boardNo" column="BOARD_NO" />
+	</resultMap>
+	
+	<resultMap type="DeptBoardReply" id="dBoardReplyResult">
+		<id property="replyNo" column="DBAORD_REPLY_NO" />
+		<result property="replyContent" column="DBOARD_REPLY_CONTENT" />
+		<result property="createDate" column="DBOARD_REPLY_CREATE_DT" />
+		<result property="modifyDate" column="DBOARD_REPLY_MODIFY_DT" />
+		<result property="deleteYN" column="DBOARD_REPLY_DELETE_YN" />
+		<result property="boardNo" column="BOARD_NO" />
+		<result property="memberNo" column="MEMBER_NO" />
+		<result property="memberName" column="MEMBER_NAME"/>
+	</resultMap>
+	
+
+
+	<!-- 부서명 조회 -->
+	<select id="selectDept" parameterType="String"
+		resultType="String">
+		SELECT DEPT_NAME FROM DEPARTMENT WHERE
+		DEPT_CODE=#{depctCode}
+	</select>
+
+	<!-- 게시글 수 조회 + 검색 -->
+	<select id="getListCount" parameterType="map" resultType="_int">
+		SELECT COUNT(*)
+		FROM DEPT_BOARD_VIEW
+		<where>
+			<if test="searchValue != null">
+				<bind name="sv" value="'%' + _parameter.searchValue + '%'" />
+				<choose>
+					<when test="searchKey == 'title'">
+						AND BOARD_TITLE LIKE #{sv}
+					</when>
+					<when test="searchKey == 'content'">
+						AND BOARD_TITLE LIKE #{sv}
+					</when>
+					<otherwise>
+						AND (BOARD_TITLE LIKE #{sv}
+						OR BOARD_TITLE LIKE
+						#{sv})
+					</otherwise>
+				</choose>
+			</if>
+			<bind name="dp" value="_parameter.deptCode" />
+			AND DEPT_CODE = #{dp}
+			AND BOARD_STATUS='Y'
+		</where>
+		ORDER BY BOARD_NO DESC
+	</select>
+
+<!-- 게시글 목록 조회 -->
+	<select id="selectList" parameterType="map"
+		resultMap="DeptBoardResultSet">
+		SELECT BOARD_NO, BOARD_TITLE, BOARD_CREATE_DATE, BOARD_COUNT,
+		MEMBER_NAME, MEMBER_NO,
+		(SELECT COUNT(*) FROM DBOARD_REPLY_VIEW WHERE DBOARD_REPLY_DELETE_YN='Y' AND BOARD_NO= DEPT_BOARD_VIEW.BOARD_NO) AS RECNT
+		FROM DEPT_BOARD_VIEW
+		<where>
+			<if test="searchValue != null">
+				<bind name="sv" value="'%' + _parameter.searchValue + '%'" />
+				<choose>
+					<when test="searchKey == 'title'">
+						AND BOARD_TITLE LIKE #{sv}
+					</when>
+					<when test="searchKey == 'content'">
+						AND BOARD_CONTENT LIKE #{sv}
+					</when>
+					<otherwise>
+						AND (BOARD_TITLE LIKE #{sv}
+						OR BOARD_CONTENT LIKE
+						#{sv})
+					</otherwise>
+				</choose>
+			</if>
+			<bind name="dp" value="_parameter.deptCode" />
+			AND DEPT_CODE = #{dp}
+			AND BOARD_STATUS='Y'
+		</where>
+		ORDER BY BOARD_NO DESC
+	</select>
+
+	<select id="replyCountList" parameterType="map" resultType="_int">
+		SELECT COUNT(*) FROM DEPT_BOARD_REPLY WHERE BOARD_NO=#{boardNo}
+		AND DBOARD_REPLY_DELETE_YN='Y'
+	</select>
+
+
+	<!-- 게시글 상세 조회 -->
+	<select id="selectDeptBoard" parameterType="_int"
+		resultMap="DeptBoardResultSet">
+		SELECT *
+		FROM DEPT_BOARD_VIEW WHERE BOARD_NO= #{boardNo}
+		AND
+		BOARD_STATUS = 'Y'
+	</select>
+
+	<!-- 조회수 증가 -->
+	<update id="increaseCount" parameterType="_int">
+		UPDATE DEPT_BOARD
+		SET
+		BOARD_COUNT = BOARD_COUNT+1 WHERE BOARD_NO = #{boardNo}
+	</update>
+
+	<!-- 다음 게시글 번호 조회 -->
+	<select id="selectNextNo" resultType="_int">
+		SELECT SEQ_DBNO.NEXTVAL
+		FROM
+		DUAL
+	</select>
+
+	<!-- 게시글 작성(삽입) -->
+	<insert id="insertBoard" parameterType="DeptBoard">
+		INSERT INTO DEPT_BOARD
+		VALUES(#{boardNo},
+		#{boardTitle},#{boardContent},
+		DEFAULT, DEFAULT,
+		DEFAULT, DEFAULT,
+		#{deptCode},#{memberNo})
+	</insert>
+
+	<!-- 게시글 파일 삽입 -->
+	<insert id="insertDeptBoardFile" parameterType="DeptBoardFile">
+		INSERT INTO DEPT_BOARD_FILE VALUES
+		(SEQ_DBR_NO.NEXTVAL, #{fileOriginName},
+		#{fileChangeName},
+		#{filePath}, DEFAULT ,#{boardNo})
+	</insert>
+
+	<!-- 게시글 수정 -->
+	<update id="updateBoard" parameterType="DeptBoard">
+		UPDATE DEPT_BOARD SET
+		BOARD_TITLE=#{boardTitle}, BOARD_CONTENT=#{boardContent},
+		BOARD_UPDATE_DATE=SYSDATE
+		WHERE
+		BOARD_NO=#{boardNo}
+	</update>
+
+	<!-- 파일 수정 -->
+	<update id="updateDeptBoardFile" parameterType="DeptBoardFile">
+		UPDATE DEPT_BOARD_FILE
+		SET
+		FILE_ORIGIN_NM = #{fileOriginName},
+		FILE_CHANGE_NM = #{fileChangeName}
+		WHERE FILE_NO = #{fileNo}
+	</update>
+
+	<!-- 게시글 삭제 -->
+	<update id="deleteBoard" parameterType="_int">
+		UPDATE DEPT_BOARD SET
+		BOARD_STATUS='N' WHERE BOARD_NO=#{boardNo}
+	</update>
+
+	<!-- 게시글 상세 조회 - 첨부파일 조회 -->
+	<select id="selectFiles" parameterType="_int"
+		resultMap="dBoardFileReultSet">
+		SELECT * FROM DEPT_BOARD_FILE WHERE BOARD_NO=#{boardNo}
+	</select>
+
+	<!-- 댓글 입력 -->
+	<insert id="insertReply" parameterType="DeptBoardReply">
+		INSERT INTO DEPT_BOARD_REPLY VALUES
+		(SEQ_DBR_NO.NEXTVAL, #{replyContent}, 
+		DEFAULT, DEFAULT, DEFAULT,  #{boardNo}, #{memberNo})
+	</insert>
+	
+	<!-- 댓글 목록 -->
+	<select id="selectReply" parameterType="_int" resultMap="dBoardReplyResult">
+		SELECT * FROM DBOARD_REPLY_VIEW
+		WHERE BOARD_NO=#{boardNo}
+		AND DBOARD_REPLY_DELETE_YN='Y'
+	</select>
+	
+	<!-- 댓글 삭제 -->
+	<update id="deleteReply" parameterType="_int">
+		UPDATE DEPT_BOARD_REPLY SET DBOARD_REPLY_DELETE_YN ='N'
+		WHERE DBAORD_REPLY_NO=#{replyNo}
+	</update>
+
+	<!-- 댓글 수정 -->
+	<update id="updateReply" parameterType="DeptBoardReply">
+		UPDATE DEPT_BOARD_REPLY SET DBOARD_REPLY_CONTENT = #{replyContent}
+		WHERE DBAORD_REPLY_NO=#{replyNo}
+	</update>
+	
+	<!-- 댓글 갯수 -->
+	<select id="replyCount" parameterType="_int" resultType="_int">
+		SELECT COUNT(*) FROM DEPT_BOARD_REPLY WHERE BOARD_NO=#{boardNo}
+		AND DBOARD_REPLY_DELETE_YN='Y'
+	</select>
+</mapper>
+

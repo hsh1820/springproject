@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="memberMapper">
+	
+	<resultMap type="MemberView" id="MemberResultSet">
+		<id property="memberNo" column="MEMBER_NO"/>
+		<result property="memberEmail" column="MEMBER_EMAIL"/>
+		<result property="memberPwd" column="MEMBER_PWD"/>
+		<result property="memberName" column="MEMBER_NAME"/>
+		<result property="enrollDate" column="ENROLLDATE"/>
+		<result property="memberStatus" column="MEMBER_STATUS"/>
+		<result property="memberPhone" column="PHONE_NUMBER"/>
+		<result property="memberAddress" column="MEMBER_ADDR"/>
+		<result property="memberGrade" column="MEMBER_GRADE"/>
+		<result property="deptCode" column="DEPT_CODE"/> 
+		<result property="jobCode" column="JOB_CODE"/>
+		<result property="holiday" column="MEMBER_HOLIDAY"/>
+		<result property="memberIdNo" column="MEMBER_IDNO"/>
+		<result property="gender" column="GENDER"/>
+		<result property="extensionNo" column="EXTENSION_NUMBER"/>
+		<result property="deptName" column="DEPT_NAME"/>
+		<result property="jobName" column="JOB_NAME"/>
+		<result property="inoutStatus" column="INOUT_STATUS"/>
+		<result property="outTime" column="OUT_TIME"/>
+	</resultMap>
+	
+	
+	<resultMap type="ProfileImage2" id="profileImageResultSet">
+      <id property="imageNo" column="IMAGE_NO" />
+      <result property="imageOriginName" column="IMAGE_ORIGIN_NAME"/>
+      <result property="imageChangeName" column="IMAGE_CHANGE_NAME"/>
+      <result property="imagePath" column="IMAGE_PATH"/>
+      <result property="imageUploadDate" column="IMAGE_UPLOAD_DATE"/>
+      <result property="imageStatus" column="IMAGE_STATUS"/>
+      <result property="memberNo" column="MEMBER_NO"/>
+	</resultMap>
+	
+	<resultMap type="SignImage" id="signImageResultSet">
+      <id property="signNo" column="SIGN_NO" />
+      <result property="signOriginName" column="SIGN_ORIGIN_NM"/>
+      <result property="signChangeName" column="SIGN_CHANGE_NM"/>
+      <result property="signPath" column="SIGN_PATH"/>
+      <result property="signStatus" column="SIGN_STATUS"/>
+      <result property="memberNo" column="MEMBER_NO"/>
+	</resultMap>
+	
+	<resultMap type="Attendance" id="AttendanceResultSet">
+		<id property="attendanceNo" column="ATTENDANCE_NO"/>
+		<result property="inTime" column="IN_TIME"/>
+		<result property="outTime" column="OUT_TIME"/>
+		<result property="inoutStatus" column="INOUT_STATUS"/>
+		<result property="memberNo" column="MEMBER_NO"/>
+	</resultMap>
+	
+   <!-- 마이페이지 조회 -->
+   <select id="mypageMember" parameterType="MemberView" resultMap="MemberResultSet">
+      SELECT MEMBER_NAME, PHONE_NUMBER, MEMBER_EMAIL, DEPT_NAME, JOB_NAME, MEMBER_ADDR,ENROLLDATE, EXTENSION_NUMBER
+      FROM V_MYPAGE
+      WHERE MEMBER_STATUS=1
+      AND MEMBER_NO=#{memberNo}
+   </select>
+	
+	<!-- 같은 부서원 리스트 조회 -->
+	<select id="selectSameDeptList" parameterType="MemberView" resultMap="MemberResultSet">
+	SELECT M.MEMBER_NO, M.MEMBER_NAME, M.JOB_NAME, M.EXTENSION_NUMBER,
+	M.MEMBER_EMAIL,A.INOUT_STATUS,A.OUT_TIME
+	FROM V_MYPAGE M
+	LEFT JOIN ATTENDANCE A ON (M.MEMBER_NO=A.MEMBER_NO) AND
+	TO_CHAR(IN_TIME,'YYYY-MM-DD') = TO_CHAR(SYSDATE,'YYYY-MM-DD')
+	WHERE DEPT_CODE=#{deptCode} AND MEMBER_STATUS=1
+	</select>
+	
+	
+	<!-- 부서원 검색 -->
+	<select id="selectDeptList" parameterType="map" resultMap="MemberResultSet">
+		SELECT MEMBER_NO, MEMBER_NAME, JOB_NAME, EXTENSION_NUMBER, MEMBER_EMAIL
+		FROM V_MYPAGE
+		<where>
+  			<if test="table_search != null">
+  			<bind name="sv" value="'%' + _parameter.table_search + '%'"/>
+  				AND MEMBER_NAME LIKE #{sv}	
+  			</if>
+  			AND DEPT_CODE=#{deptCode}
+  		</where>	
+	</select>
+	
+	<!-- 처음 프로필 사진 삽입 -->
+	<insert id="insertProfileImage" parameterType="ProfileImage">
+		INSERT INTO PROFILE_IMAGE VALUES
+  		(SEQ_PRO_IMAGE.NEXTVAL, #{imageOriginName}, #{imageChangeName}, #{imagePath}, DEFAULT, DEFAULT, #{memberNo})
+	</insert>
+	
+	
+	<!-- 사원 프로필사진 조회 -->
+	<select id="selectProfile" parameterType="_int" resultMap="profileImageResultSet">
+		SELECT * FROM PROFILE_IMAGE
+		WHERE MEMBER_NO=#{memberNo}
+		AND IMAGE_STATUS = 'Y'
+	</select>
+	
+	
+	<!-- 사원정보 업데이트 -->
+	<update id="updateMember" parameterType="MemberView">
+		UPDATE MEMBER SET MEMBER_ADDR=#{memberAddress},
+							PHONE_NUMBER=#{memberPhone},
+							MEMBER_PWD=#{memberPwd}
+							WHERE MEMBER_NO=#{memberNo}
+	</update>
+
+	<!-- 사원정보 업데이트(비밀번호 제외) -->
+	<update id="updateMember2" parameterType="MemberView">
+		UPDATE MEMBER SET MEMBER_ADDR=#{memberAddress},
+							PHONE_NUMBER=#{memberPhone}
+							WHERE MEMBER_NO=#{memberNo}
+	</update>
+	
+	
+	<!-- 이미지 수정 -->
+	<update id="updateProfileImage" parameterType="ProfileImage">
+		UPDATE PROFILE_IMAGE SET
+		IMAGE_ORIGIN_NAME = #{imageOriginName},
+		IMAGE_CHANGE_NAME = #{imageChangeName},
+		IMAGE_UPLOAD_DATE = SYSDATE
+		WHERE IMAGE_NO = #{imageNo}
+	</update>	
+	
+	<!-- 근태관리 목록 조회 -->
+	<select id="selectAttendanceList" parameterType="_int" resultMap="AttendanceResultSet">
+		SELECT * FROM ATTENDANCE WHERE MEMBER_NO=#{memberNo}
+	</select>
+	
+	<!-- 근태관리 검색 리스트 조회 -->
+	<select id="attendanceSearchList" parameterType="map" resultMap="AttendanceResultSet">
+	SELECT * FROM ATTENDANCE
+	WHERE MEMBER_NO=#{memberNo} AND
+	(IN_TIME LIKE '%' || #{searchKeyYear} || '%' AND IN_TIME LIKE '%' || #{searchKeyMonth} || '%') 
+	</select>
+	
+	<!-- 회원 도장 사진 조회 -->
+	<select id="selectSign" parameterType="_int" resultMap="signImageResultSet">
+		SELECT * FROM MEMBER_SIGN_IMAGE
+		WHERE MEMBER_NO=#{memberNo}
+		AND SIGN_STATUS = 'Y'
+	</select>
+	
+	<!-- 회원 도장 사진 삽입 -->
+	<insert id="insertSignImage" parameterType="SignImage">
+		INSERT INTO MEMBER_SIGN_IMAGE
+		VALUES(SEQ_SIGN_IMAGE.NEXTVAL, #{signOriginName}, #{signChangeName}, #{signPath}, DEFAULT, #{memberNo})
+	</insert>
+	
+	
+	<!-- 회원 도장 사진 수정 -->
+	<update id="updateSignImage" parameterType="SignImage">
+		UPDATE MEMBER_SIGN_IMAGE SET
+		SIGN_ORIGIN_NM = #{signOriginName},
+		SIGN_CHANGE_NM = #{signChangeName}
+		WHERE SIGN_NO = #{signNo}
+	</update>
+	
+</mapper>
