@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="mailMapper">
+<resultMap type="Mail" id="MailResultSet">
+	<id property="mailNo" column="MAIL_NO"/>
+	<result property="mailFrom" column="MAIL_FROM"/>
+	<result property="mailTo" column="MAIL_TO"/>
+	<result property="mailCc" column="MAIL_CC"/>
+	<result property="mailBcc" column="MAIL_BCC"/>
+	<result property="mailSubject" column="MAIL_SUBJECT"/>
+	<result property="mailContent" column="MAIL_CONTENT"/>
+	<result property="mailDeleteYn" column="MAIL_DELETED_YN"/>
+	<result property="mailSentDate" column="MAIL_SENT_DATE"/>
+	<result property="memberNo" column="MEMBER_NO"/>
+	<result property="readFlag" column="READ_FLAG"/>
+</resultMap>
+
+<!-- 해당 회원의 메일 리스트 갯수 -->
+<select id="countMailList" parameterType="_int" resultType="_int">
+	SELECT COUNT(*) MEMBER_NO FROM MAIL_MAIL
+	WHERE MEMBER_NO = #{memberNo}
+</select>
+
+<!-- 메일 리스트 DB 업데이트 -->
+<insert id="insertMailList" parameterType="Mail">
+	INSERT INTO MAIL_MAIL  
+	VALUES(SEQ_MAIL.NEXTVAL,#{mailFrom}, #{mailTo}, #{mailCc}, #{mailBcc},#{mailSubject}, #{mailContent}, DEFAULT, #{mailSentDate}, #{memberNo}, DEFAULT)
+</insert>
+
+<!-- DB에 있는 메일 리스트 조회 -->
+<select id="selectList" parameterType="_int" resultMap="MailResultSet">
+	SELECT * 
+	FROM MAIL_MAIL
+	WHERE MEMBER_NO = #{memberNo}
+	AND MAIL_DELETED_YN = 'Y'
+	ORDER BY MAIL_SENT_DATE DESC
+</select>
+
+<!-- 메일 상세 조회 -->
+<select id="selectMailBoard" parameterType="_int" resultMap="MailResultSet">
+	SELECT * FROM MAIL_MAIL WHERE MAIL_NO = #{mailNo}
+</select>
+
+<!-- 메일 리스트 갯수 조회 -->
+<select id="getListCount" parameterType="map" resultType="_int">
+	SELECT COUNT(*) FROM MAIL_MAIL
+	<where>
+		<if test = "searchValue != null">
+		<bind name="sv" value="'%' +_parameter.searchValue + '%'"/>
+			AND (MAIL_FROM LIKE #{sv}
+				OR MAIL_SUBJECT LIKE #{sv}
+				OR MAIL_CONTENT LIKE #{sv})
+		</if>
+		AND MEMBER_NO = #{no}
+		AND MAIL_DELETED_YN = 'Y'
+		ORDER BY MAIL_SENT_DATE DESC
+	</where>
+</select>
+
+<!-- 메일 읽음 처리 -->
+<update id="updateMailBoard" parameterType="_int" >
+	UPDATE MAIL_MAIL SET READ_FLAG = 1 WHERE MAIL_NO = #{no}
+</update>
+
+<!-- 메일 알림 처리 위한 안읽은 메일 가져오기 -->
+<select id="selectReadMail" parameterType="_int" resultType="_int">
+	SELECT COUNT(*) 
+	FROM MAIL_MAIL
+	WHERE READ_FLAG = 0
+	AND MEMBER_NO =#{no}
+	AND MAIL_DELETED_YN = 'Y'
+</select>
+
+<!-- 선택 메일 삭제 처리 -->
+<update id="deleteThisMail" parameterType="_int">
+	UPDATE MAIL_MAIL SET MAIL_DELETED_YN = 'N'
+	WHERE MAIL_NO = #{no}
+</update>
+</mapper>

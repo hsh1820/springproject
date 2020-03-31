@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="elecMapper">
+
+    <resultMap type="Sgn_doc" id="Sgn_docResultSet">
+      <id property="docNo" column="DOCNO" />
+      <result property="docTitle" column="DOCTITLE" />
+      <result property="docContents" column="DOCCONTENTS" />
+      <result property="deleteFlag" column="DELETEFLAG" />
+      <result property="docStatus" column="DOCSTATUS" />
+      <result property="docStep" column="DOCSTEP" />
+      <result property="updateDate" column="UPDATEDATE" />
+      <result property="insertDate" column="INSERTDATE" />
+      <result property="deptNm" column="DEPTNM" />
+      <result property="dtNo" column="DTNO" />
+      <result property="memberNo" column="MEMBER_NO" />
+      <result property="docRemark" column="DOCREMARK" />
+      <result property="drafter" column="DRAFTER" />
+      <result property="drafterName" column="DRAFTERNAME" />
+      <result property="ssNo" column="SSNO" />
+      <result property="sStep" column="SSTEP" />
+      <result property="ssResult" column="SSRESULT" />
+      <result property="ssComment" column="SSCOMMENT" />
+      <result property="receiveDate" column="RECEIVEDATE" />
+      <result property="signDate" column="SIGNDATE" />
+      <result property="userPos" column="USERPOS" />
+      <result property="payer" column="PAYER" />
+      <result property="payerName" column="PAYERNAME" />
+      <result property="signNo" column="SIGN_NO"/>
+      <result property="signOriginNm" column="SIGN_ORIGIN_NM"/>
+      <result property="signChangeNm" column="SIGN_CHANGE_NM"/>
+      <result property="signPath" column="SIGN_PATH"/>
+   </resultMap>
+   
+   <resultMap type="Sgn_docFile" id="Sgn_docFileResultSet">
+      <id property="fileNo" column="FILE_NO" />
+      <result property="fileName" column="FILENAME" />
+      <result property="realName" column="REALNAME" />
+      <result property="fileSize" column="FILESIZE" />
+      <result property="docNo" column="DOCNO" />
+      <result property="filePath" column="FILE_PATH" />
+   </resultMap>
+
+   <resultMap type="Sgn_docType" id="Sgn_docTypeReultSet">
+      <id property="dtNo" column="DTNO" />
+      <result property="dtTitle" column="DTITLE" />
+      <result property="dtContents" column="DTCONTENTS" />
+      <result property="deleteFlag" column="DELETEFLAG" />
+   </resultMap>
+
+   <resultMap type="Sgn_path" id="Sgn_pathResultSet">
+      <id property="spNo" column="SPNO" />
+      <result property="spTitle" column="SPTITLE" />
+      <result property="insertDate" column="INSERTDATE" />
+      <result property="spSignPath" column="SPSIGNPATH" />
+      <result property="memberNo" column="MEMBER_NO" />
+   </resultMap>
+
+   <resultMap type="Sgn_pathUser" id="Sgn_pathUserResultSet">
+      <id property="spUser" column="SPUSEQ" />
+      <result property="spNo" column="SPNO" />
+      <result property="ssType" column="SSTYPE" />
+      <result property="memberNo" column="MEMBER_NO" />
+   </resultMap>
+
+   <resultMap type="Sgn_sign" id="Sgn_signResultSet">
+      <result property="spNo" column="SSNO" />
+      <result property="docNo" column="DOCNO" />
+      <result property="sStep" column="SSTEP" />
+      <result property="ssType" column="SSTYPE" />
+      <result property="ssResult" column="SSRESULT" />
+      <result property="ssComment" column="SSCOMMENT" />
+      <result property="receiveDate" column="RECEIVEDATE" />
+      <result property="signDate" column="SIGNDATE" />
+      <result property="userPos" column="USERPOS" />
+      <result property="memberNo" column="MEMBER_NO" />
+   </resultMap>
+   
+   <resultMap type="EleDeptList" id="eleDeptListResultSet">
+      <id property="memberNo" column="MEMBER_NO" />
+      <result property="memberName" column="MEMBER_NAME" />
+      <result property="deptCode" column="DEPT_CODE" />
+      <result property="deptName" column="DEPT_NAME" />
+      <result property="jobCode" column="JOB_CODE" />
+      <result property="jobName" column="JOB_NAME" />
+   </resultMap> 
+   
+   	<resultMap type="SignListView" id="SignListViewResultSet">
+		<id property="docNo" column="DOCNO" />
+		<result property="drafter" column="DRAFTER" />
+		<result property="docTitle" column="DOCTITLE" />
+		<result property="insertDate" column="INSERTDATE" />
+		<result property="deleteFlag" column="DELETEFLAG" />
+		<result property="dtNo" column="DTNO" />
+		<result property="dTitle" column="DTITLE" />
+		<result property="memberNo" column="MEMBER_NO" />
+		<result property="memberName" column="MEMBER_NAME" />
+		<result property="docStatus" column="DOCSTATUS" />
+		<result property="signDate" column="SIGNDATE" />
+	</resultMap>
+	
+	<!-- 결재자가 결재 해야할 리스트 볼때 -->
+   <resultMap type="SignTobeListView" id="SignTobeListViewResultSet">
+      <id property="docNo" column="DOCNO"/>
+      <result property="docTitle" column="DOCTITLE"/>
+      <result property="memberNo" column="MEMBER_NO"/>
+      <result property="memberName" column="MEMBER_NAME"/>
+      <result property="docStep" column="DOCSTEP"/>
+      <result property="dtNo" column="DTNO"/>
+      <result property="dTitle" column="DTITLE"/>
+      <result property="deptName" column="DEPTNM"/>
+      <result property="docStatus" column="DOCSTATUS"/>
+      <result property="ssResult" column="SSRESULT"/>
+      <result property="insertDate" column="INSERTDATE"/>
+   </resultMap>
+   
+	<!-- 기안자가 올린 전체 결재리스트 -->
+   <!-- // 소희(기안 올린 결재문서들의 전체 리스트 개수) -->
+   <select id="getAllListCount" parameterType="_int"
+      resultType="_int">
+      SELECT COUNT(*)
+      FROM(SELECT *
+      FROM V_SIGNLIST
+      WHERE
+      DRAFTER=#{memberNo} AND DOCSTATUS IN (2,3,4) AND
+      (DOCNO,SIGNDATE) IN (
+      SELECT DOCNO,MAX(SIGNDATE)
+      FROM V_SIGNLIST
+      GROUP BY DOCNO)
+      UNION ALL
+      SELECT * FROM V_SIGNLIST
+      WHERE DOCSTATUS=1 AND DRAFTER=#{memberNo})
+   </select>
+
+   <!-- // 소희(기안 올린 결재문서들의 전체 리스트) -->
+   <select id="selectAllList" parameterType="_int"
+      resultMap="SignListViewResultSet">
+   SELECT *
+   FROM(SELECT *
+   FROM V_SIGNLIST
+   WHERE DRAFTER=#{memberNo} AND
+   (DOCNO,SIGNDATE) IN (
+   SELECT DOCNO,MAX(SIGNDATE)
+   FROM V_SIGNLIST
+   GROUP BY DOCNO)
+   UNION ALL
+   SELECT * FROM V_SIGNLIST
+   WHERE DOCSTATUS=1 AND DRAFTER=#{memberNo} AND SSTEP=1)
+   ORDER BY DOCNO DESC
+   </select>
+
+   <!-- // 소희(기안자가 올린 결재 문서들 중 대기중인 문서 리스트 개수) -->
+   <select id="getWaitListCount" parameterType="_int"
+      resultType="_int">
+      SELECT COUNT(*) FROM SGN_DOC
+      WHERE DOCSTATUS=1 AND MEMBER_NO=#{memberNo}
+   </select>
+
+   <!-- // 소희(기안자가 올린 결재 문서들 중 대기중인 문서 리스트) -->
+   <select id="selectWaitList" parameterType="_int" 
+      resultMap="SignListViewResultSet">
+      SELECT * FROM SGN_DOC SD
+      JOIN SGN_DOCTYPE SDT ON SD.DTNO=SDT.DTNO
+      WHERE DOCSTATUS=1 AND MEMBER_NO=#{memberNo}
+      ORDER BY DOCNO DESC
+   </select>
+
+
+   <!-- 희원 심사중 목록 수 -->
+   <select id="getProgressListCount" resultType="_int">
+   SELECT COUNT(*)
+   FROM(SELECT *
+   FROM V_SIGNLIST
+   WHERE DRAFTER=#{memberNo} AND DOCSTATUS=2 AND 
+   (DOCNO,SIGNDATE) IN (
+   SELECT DOCNO,MAX(SIGNDATE)
+   FROM V_SIGNLIST
+   GROUP BY DOCNO))
+   </select>
+
+   <!-- 희원 심사중 목록 -->
+   <select id="selectProgressList" parameterType="_int"
+      resultMap="SignListViewResultSet">
+      SELECT *
+      FROM V_SIGNLIST
+      WHERE DRAFTER=#{memberNo} AND DOCSTATUS=2 AND
+      (DOCNO,SIGNDATE) IN (
+      SELECT DOCNO,MAX(SIGNDATE)
+      FROM V_SIGNLIST
+      GROUP BY DOCNO)
+      ORDER BY DOCNO DESC
+   </select>
+
+   <!-- 희원 반려 목록 수 -->
+   <select id="getRejectListCount" resultType="_int">
+      SELECT COUNT(*)
+      FROM (SELECT *
+      FROM V_SIGNLIST
+      WHERE DRAFTER=#{memberNo} AND DOCSTATUS=3 AND
+      (DOCNO,SIGNDATE) IN (
+      SELECT DOCNO,MAX(SIGNDATE)
+      FROM V_SIGNLIST
+      GROUP BY
+      DOCNO))
+      
+   </select>
+
+   <!-- 희원 반려 목록 -->
+   <select id="selectRejectList" parameterType="_int"
+      resultMap="SignListViewResultSet">
+      SELECT *
+      FROM V_SIGNLIST
+      WHERE DRAFTER=#{memberNo} AND DOCSTATUS=3 AND
+      (DOCNO,SIGNDATE) IN (
+      SELECT DOCNO,MAX(SIGNDATE)
+      FROM V_SIGNLIST
+      GROUP BY DOCNO)
+      ORDER BY DOCNO DESC
+   </select>
+   
+   <!-- 희원 결재완료 목록 수 -->
+   <select id="getCompletListCount" resultType="_int">
+      SELECT COUNT(*)
+      FROM(SELECT *
+      FROM V_SIGNLIST
+      WHERE DRAFTER=#{memberNo} AND DOCSTATUS=4 AND
+      (DOCNO,SIGNDATE) IN (
+      SELECT DOCNO,MAX(SIGNDATE)
+      FROM V_SIGNLIST
+      GROUP BY DOCNO))
+   </select>
+
+   <!-- 희원 결재완료 목록 -->
+   <select id="selectCompletList" parameterType="_int"
+      resultMap="SignListViewResultSet">
+      SELECT *
+      FROM V_SIGNLIST
+      WHERE DRAFTER=#{memberNo} AND DOCSTATUS=4 AND
+      (DOCNO,SIGNDATE) IN (
+      SELECT DOCNO,MAX(SIGNDATE)
+      FROM V_SIGNLIST
+      GROUP BY DOCNO)
+      ORDER BY DOCNO DESC
+   </select>
+   
+   <!-- 희원 결재자 전체 목록 수 -->
+   <select id="getPayerListCount" resultType="_int">
+	SELECT COUNT(*)
+	FROM(SELECT SD.DOCNO, DOCTITLE, SD.MEMBER_NO, M.MEMBER_NAME
+	, SD.DOCSTEP, SD.DTNO, SDT.DTITLE, DEPTNM,
+	DOCSTATUS,SS.MEMBER_NO,SS.SSRESULT,SD.INSERTDATE
+	FROM SGN_DOC SD
+	INNER JOIN MEMBER M ON (SD.MEMBER_NO=M.MEMBER_NO)
+	INNER JOIN SGN_DOCTYPE SDT ON (SDT.DTNO=SD.DTNO)
+	LEFT JOIN SGN_SIGN SS ON (SS.DOCNO=SD.DOCNO)
+	WHERE SD.DELETEFLAG='N' AND SSTYPE!=0 
+	AND MEMBER_NO=#{memberNo} AND SSRESULT IN (1,2)
+	ORDER BY DOCNO DESC)
+   </select>
+    
+   <!-- 희원 결재자 전체 목록 -->
+   <select id="selectPayerList" parameterType="_int" resultMap="SignTobeListViewResultSet">
+	SELECT SD.DOCNO, DOCTITLE, SD.MEMBER_NO, M.MEMBER_NAME
+	, SD.DOCSTEP, SD.DTNO, SDT.DTITLE, DEPTNM,
+	DOCSTATUS,SS.MEMBER_NO,SS.SSRESULT,SD.INSERTDATE 
+	FROM SGN_DOC SD
+	INNER JOIN MEMBER M ON (SD.MEMBER_NO=M.MEMBER_NO)
+	INNER JOIN SGN_DOCTYPE SDT ON (SDT.DTNO=SD.DTNO)
+	LEFT JOIN SGN_SIGN SS ON (SS.DOCNO=SD.DOCNO)
+	WHERE SD.DELETEFLAG='N' AND SSTYPE!=0 
+	AND MEMBER_NO=#{memberNo} AND SSRESULT IN (1,2) 
+	ORDER BY DOCNO DESC
+   </select>
+   
+   <!-- 소희 결재해야할 리스트 목록 수 -->
+   <select id="getWaitTobeListCount" parameterType="_int" resultType="_int">
+	SELECT COUNT(*)
+	FROM(
+	SELECT SD.DOCNO, DOCTITLE, SD.MEMBER_NO,
+	M.MEMBER_NAME, SD.DOCSTEP,
+	SD.DTNO, SDT.DTITLE, DEPTNM,
+	DOCSTATUS,SS.SSRESULT,SD.INSERTDATE
+	FROM SGN_DOC SD
+	INNER JOIN MEMBER M ON (SD.MEMBER_NO=M.MEMBER_NO)
+	INNER JOIN SGN_DOCTYPE SDT ON (SDT.DTNO=SD.DTNO)
+	LEFT JOIN SGN_SIGN SS ON (SS.DOCNO=SD.DOCNO) AND SS.MEMBER_NO = #{memberNo}
+	WHERE SSTYPE!=0
+	AND SS.SSRESULT=0 AND SS.SSTEP=SD.DOCSTEP
+	AND SD.DELETEFLAG='N'
+	ORDER BY DOCNO DESC)
+   </select>
+   
+   <!-- 소희 결재해야할 리스트 목록 -->
+	<select id="selectWaitTobeList" parameterType="_int"
+		resultMap="SignTobeListViewResultSet">
+		SELECT SD.DOCNO, DOCTITLE, SD.MEMBER_NO, M.MEMBER_NAME, SD.DOCSTEP,
+		SD.DTNO, SDT.DTITLE, DEPTNM,
+		DOCSTATUS,SS.SSRESULT,SD.INSERTDATE
+		FROM SGN_DOC SD
+		INNER JOIN MEMBER M ON (SD.MEMBER_NO=M.MEMBER_NO)
+		INNER JOIN SGN_DOCTYPE SDT ON (SDT.DTNO=SD.DTNO)
+		LEFT JOIN SGN_SIGN SS ON (SS.DOCNO=SD.DOCNO) AND SS.MEMBER_NO = #{memberNo}
+		WHERE SSTYPE!=0
+		AND SS.SSRESULT=0 AND SS.SSTEP=SD.DOCSTEP
+		AND SD.DELETEFLAG='N'
+		ORDER BY DOCNO DESC
+	</select>
+   
+<!-- 리스트 끝~ -->
+
+ 
+   <!-- 전자 결재 - 결재 라인 부서 인원 리스트 조회 -->
+   <select id="selectDepartment" parameterType="map"
+      resultMap="eleDeptListResultSet">
+      SELECT MEMBER_NO,MEMBER_NAME,
+      (SELECT JOB_CODE FROM JOB WHERE JOB_CODE = M1.JOB_CODE)JOB_CODE,
+      (SELECT JOB_NAME FROM JOB WHERE JOB_CODE = M1.JOB_CODE)JOB_NAME,
+      (SELECT DEPT_CODE FROM DEPARTMENT WHERE DEPT_CODE = M1.DEPT_CODE)DEPT_CODE,
+      (SELECT DEPT_NAME FROM DEPARTMENT WHERE DEPT_CODE =
+      M1.DEPT_CODE)DEPT_NAME
+      FROM MEMBER M1
+      WHERE M1.DEPT_CODE = #{radioValue} AND M1.MEMBER_NO !=#{memberNo} AND M1.JOB_CODE IN('J3','J4') 
+   </select>
+   
+   <select id="selectNextNo" resultType="_int">
+      SELECT SEQ_DOC.NEXTVAL FROM DUAL
+   </select>
+   
+   <!-- 결재문서 첨부파일 삽입 -->
+   <insert id="insertSgnDocFile" parameterType="Sgn_docFile">
+      INSERT INTO SGN_DOCFILE (FILE_NO, FILENAME,REALNAME, DOCNO, FILE_PATH )
+      VALUES (SEQ_DOC_FILE.NEXTVAL, #{fileName}, #{realName}, #{docNo}, #{filePath} )
+   </insert>
+   
+   <!-- 전자결재 - 야근식대 작성 -->
+   <insert id="insertNightMeal" parameterType="Sgn_doc">
+        INSERT INTO SGN_DOC 
+        (DOCNO, DOCTITLE, DOCCONTENTS,DELETEFLAG,DOCSTATUS, DOCSTEP, UPDATEDATE, INSERTDATE, DEPTNM, DTNO, MEMBER_NO, DOCREMARK, DOCSIGNPATH)
+        VALUES 
+        (#{docNo}, #{docTitle}, #{docContents}, DEFAULT, 1, 1, DEFAULT, DEFAULT, #{deptNm}, 1, #{memberNo}, #{docRemark}, #{docSignPath})
+   </insert>
+   
+      <!-- 전자결재 - 지출결의서 작성 -->
+   <insert id="insertExpenseReport" parameterType="Sgn_doc">
+      	INSERT INTO SGN_DOC 
+        (DOCNO, DOCTITLE, DOCCONTENTS,DELETEFLAG,DOCSTATUS, DOCSTEP, UPDATEDATE, INSERTDATE, DEPTNM, DTNO, MEMBER_NO, DOCREMARK, DOCSIGNPATH)
+        VALUES 
+        (#{docNo}, #{docTitle}, #{docContents}, DEFAULT, 1, 1, DEFAULT, DEFAULT, #{deptNm}, 2, #{memberNo}, #{docRemark}, #{docSignPath})
+   </insert>
+   
+      <!-- 전자결재 - 품의서 작성 -->
+   <insert id="insertExpenditure" parameterType="Sgn_doc">
+      	INSERT INTO SGN_DOC 
+        (DOCNO, DOCTITLE, DOCCONTENTS,DELETEFLAG,DOCSTATUS, DOCSTEP, UPDATEDATE, INSERTDATE, DEPTNM, DTNO, MEMBER_NO, DOCSIGNPATH)
+        VALUES 
+        (#{docNo}, #{docTitle}, #{docContents}, DEFAULT, 1, 1, DEFAULT, DEFAULT, #{deptNm}, 3, #{memberNo}, #{docSignPath})
+   </insert>
+   
+      <!-- 전자결재 - 사직서 작성 -->
+   <insert id="insertResignation" parameterType="Sgn_doc">
+      	INSERT INTO SGN_DOC 
+        (DOCNO, DOCTITLE, DOCCONTENTS,DELETEFLAG,DOCSTATUS, DOCSTEP, UPDATEDATE, INSERTDATE, DEPTNM, DTNO,MEMBER_NO, DOCREMARK, DOCSIGNPATH)
+        VALUES 
+        (#{docNo}, #{docTitle}, #{docContents}, DEFAULT, 1, 1, DEFAULT, DEFAULT, #{deptNm}, 4, #{memberNo}, #{docRemark}, #{docSignPath})
+   </insert>
+   
+      <!-- 전자결재 - 건강검진 작성 -->
+   <insert id="insertPhysicalExam" parameterType="Sgn_doc">
+    	INSERT INTO SGN_DOC 
+        (DOCNO, DOCTITLE, DOCCONTENTS,DELETEFLAG,DOCSTATUS, DOCSTEP, UPDATEDATE, INSERTDATE, DEPTNM, DTNO,MEMBER_NO, DOCREMARK, DOCSIGNPATH)
+        VALUES 
+        (#{docNo}, #{docTitle}, #{docContents}, DEFAULT, 1, 1, DEFAULT, DEFAULT, #{deptNm}, 5, #{memberNo}, #{docRemark}, #{docSignPath})
+   </insert>
+   
+      <!-- 전자결재 - 휴가신청 작성 -->
+   <insert id="insertHolidayRequest" parameterType="Sgn_doc">
+    	INSERT INTO SGN_DOC 
+        (DOCNO, DOCTITLE, DOCCONTENTS,DELETEFLAG,DOCSTATUS, DOCSTEP, UPDATEDATE, INSERTDATE, DEPTNM, DTNO,MEMBER_NO, DOCREMARK, DOCSIGNPATH)
+        VALUES 
+        (#{docNo}, #{docTitle}, #{docContents}, DEFAULT, 1, 1, DEFAULT, DEFAULT, #{deptNm}, 6, #{memberNo}, #{docRemark}, #{docSignPath})
+   </insert>
+   
+      <!-- 전자결재 - 경조사 작성 -->
+   <insert id="insertEvent" parameterType="Sgn_doc">
+      	INSERT INTO SGN_DOC 
+        (DOCNO, DOCTITLE, DOCCONTENTS,DELETEFLAG,DOCSTATUS, DOCSTEP, UPDATEDATE, INSERTDATE, DEPTNM, DTNO,MEMBER_NO, DOCREMARK, DOCSIGNPATH)
+        VALUES 
+        (#{docNo}, #{docTitle}, #{docContents}, DEFAULT, 1, 1, DEFAULT, DEFAULT, #{deptNm}, 7, #{memberNo}, #{docRemark}, #{docSignPath})
+   </insert>
+   
+      <!-- 전자결재 - 결근사유서 작성 -->
+   <insert id="insertAbsentDoc" parameterType="Sgn_doc">
+     	INSERT INTO SGN_DOC 
+        (DOCNO, DOCTITLE, DOCCONTENTS,DELETEFLAG,DOCSTATUS, DOCSTEP, UPDATEDATE, INSERTDATE, DEPTNM, DTNO,MEMBER_NO, DOCREMARK, DOCSIGNPATH)
+        VALUES 
+        (#{docNo}, #{docTitle}, #{docContents}, DEFAULT, 1, 1, DEFAULT, DEFAULT, #{deptNm}, 8, #{memberNo}, #{docRemark}, #{docSignPath})
+   </insert>
+   
+   
+   <!-- 전자결재 - sgn_sign 테이블에  넣기 -->
+	<select id="selectNextSsNo" resultType="_int">
+		SELECT SEQ_SSNO.NEXTVAL FROM DUAL
+	</select>
+	
+   <insert id="insertNighMealSign" parameterType="java.util.List">
+   	<foreach collection="list" item="item" open="INSERT ALL" close="SELECT * FROM SYS.DUAL">
+   	INTO SGN_SIGN(SSNO,DOCNO,SSTEP,SSTYPE,SSRESULT,SSCOMMENT,RECEIVEDATE,SIGNDATE,USERPOS,MEMBER_NO)
+   	VALUES(#{item.ssNo},#{item.docNo},#{item.sStep},#{item.ssType},0,NULL,SYSDATE,NULL,#{item.userPos},#{item.memberNo})
+   	</foreach>
+   </insert>
+   	
+   <insert id="insertExpenseReportSign" parameterType="java.util.List">
+   	<foreach collection="list" item="item" open="INSERT ALL" close="SELECT * FROM SYS.DUAL">
+   	INTO SGN_SIGN(SSNO,DOCNO,SSTEP,SSTYPE,SSRESULT,SSCOMMENT,RECEIVEDATE,SIGNDATE,USERPOS,MEMBER_NO)
+   	VALUES(#{item.ssNo},#{item.docNo},#{item.sStep},#{item.ssType},0,NULL,SYSDATE,NULL,#{item.userPos},#{item.memberNo})
+   	</foreach>
+   </insert>
+   
+   <insert id="insertExpenditureSign" parameterType="java.util.List">
+   	<foreach collection="list" item="item" open="INSERT ALL" close="SELECT * FROM SYS.DUAL">
+   	INTO SGN_SIGN(SSNO,DOCNO,SSTEP,SSTYPE,SSRESULT,SSCOMMENT,RECEIVEDATE,SIGNDATE,USERPOS,MEMBER_NO)
+   	VALUES(#{item.ssNo},#{item.docNo},#{item.sStep},#{item.ssType},0,NULL,SYSDATE,NULL,#{item.userPos},#{item.memberNo})
+   	</foreach>
+   </insert>
+   
+   <insert id="insertResignationSign" parameterType="java.util.List">
+   	<foreach collection="list" item="item" open="INSERT ALL" close="SELECT * FROM SYS.DUAL">
+   	INTO SGN_SIGN(SSNO,DOCNO,SSTEP,SSTYPE,SSRESULT,SSCOMMENT,RECEIVEDATE,SIGNDATE,USERPOS,MEMBER_NO)
+   	VALUES(#{item.ssNo},#{item.docNo},#{item.sStep},#{item.ssType},0,NULL,SYSDATE,NULL,#{item.userPos},#{item.memberNo})
+   	</foreach>
+   </insert>
+   
+   <insert id="insertPhysicalExamSign" parameterType="java.util.List">
+   	<foreach collection="list" item="item" open="INSERT ALL" close="SELECT * FROM SYS.DUAL">
+   	INTO SGN_SIGN(SSNO,DOCNO,SSTEP,SSTYPE,SSRESULT,SSCOMMENT,RECEIVEDATE,SIGNDATE,USERPOS,MEMBER_NO)
+   	VALUES(#{item.ssNo},#{item.docNo},#{item.sStep},#{item.ssType},0,NULL,SYSDATE,NULL,#{item.userPos},#{item.memberNo})
+   	</foreach>
+   </insert>
+   
+   <insert id="insertHolidayRequestSign" parameterType="java.util.List">
+   	<foreach collection="list" item="item" open="INSERT ALL" close="SELECT * FROM SYS.DUAL">
+   	INTO SGN_SIGN(SSNO,DOCNO,SSTEP,SSTYPE,SSRESULT,SSCOMMENT,RECEIVEDATE,SIGNDATE,USERPOS,MEMBER_NO)
+   	VALUES(#{item.ssNo},#{item.docNo},#{item.sStep},#{item.ssType},0,NULL,SYSDATE,NULL,#{item.userPos},#{item.memberNo})
+   	</foreach>
+   </insert>
+   
+   <insert id="insertEventSign" parameterType="java.util.List">
+   	<foreach collection="list" item="item" open="INSERT ALL" close="SELECT * FROM SYS.DUAL">
+   	INTO SGN_SIGN(SSNO,DOCNO,SSTEP,SSTYPE,SSRESULT,SSCOMMENT,RECEIVEDATE,SIGNDATE,USERPOS,MEMBER_NO)
+   	VALUES(#{item.ssNo},#{item.docNo},#{item.sStep},#{item.ssType},0,NULL,SYSDATE,NULL,#{item.userPos},#{item.memberNo})
+   	</foreach>
+   </insert>
+   
+   <insert id="insertAbsentDocSign" parameterType="java.util.List">
+   	<foreach collection="list" item="item" open="INSERT ALL" close="SELECT * FROM SYS.DUAL">
+   	INTO SGN_SIGN(SSNO,DOCNO,SSTEP,SSTYPE,SSRESULT,SSCOMMENT,RECEIVEDATE,SIGNDATE,USERPOS,MEMBER_NO)
+   	VALUES(#{item.ssNo},#{item.docNo},#{item.sStep},#{item.ssType},0,NULL,SYSDATE,NULL,#{item.userPos},#{item.memberNo})
+   	</foreach>
+   </insert>
+
+	<!-- detail -->
+	<select id="selectDocList" parameterType="_int" resultMap="Sgn_docResultSet">
+		SELECT * FROM V_DOCLIST WHERE DOCNO=#{docNo}
+	</select>
+	
+	<!--파일 끌어오기-->
+	<select id="selectFile" parameterType="_int"
+	resultMap="Sgn_docFileResultSet">
+	SELECT * FROM SGN_DOCFILE
+	WHERE DOCNO=#{docNo} 
+</select>
+
+<!-- docStatus 선택 -->
+<select id="selectDocStatus" parameterType="_int" resultType="_int">
+	SELECT DOCSTATUS FROM SGN_DOC WHERE DOCNO=#{no}
+</select>
+
+<!-- 결재라인에 있는 사람의 결재 -->
+<update id="firstSign" parameterType="map">
+	<!-- signDate, ssResult -->
+	UPDATE SGN_SIGN
+	SET SSRESULT=1,
+	SIGNDATE=SYSDATE
+	WHERE DOCNO=#{no} AND MEMBER_NO=#{memberNo}
+</update>
+
+<update id="updateStatus" parameterType="_int">
+	UPDATE SGN_DOC
+	SET DOCSTATUS=2, 
+	DOCSTEP=2
+	WHERE DOCNO=#{docNo}
+</update>
+
+
+
+<!-- 품의서 결재(SGN_DOC 테이블) -->
+<update id="SignForExpenditureDoc" parameterType="map">
+	UPDATE SGN_DOC
+	SET DOCREMARK = #{docRemark},
+	DOCSTATUS = 4,
+	DOCSTEP = DOCSTEP + 1
+	WHERE DOCNO=#{no}
+</update>
+
+<select id="stepCount" parameterType="_int" resultType="_int">
+	SELECT COUNT(*) FROM SGN_SIGN WHERE DOCNO=#{docNo}
+</select>
+
+<select id="myCount" parameterType="map" resultType="_int">
+	SELECT SSTEP FROM SGN_SIGN WHERE DOCNO=#{no} AND MEMBER_NO=#{memberNo}
+</select>
+
+<!-- 내가 결재 단계 마지막일 때 docStep 올리고 docStatus -->
+<update id="completeSign" parameterType="_int">
+	UPDATE SGN_DOC
+	SET DOCSTATUS=4,
+	DOCSTEP = DOCSTEP + 1
+	WHERE DOCNO=#{docNo}
+</update>
+
+<!-- 내가 중간단계일 때 status는 그대로 심사중으로 elecMapper납두고,docStep만 한단계 올려준다. -->
+<update id="midUpdateDocStep" parameterType="_int">
+	UPDATE SGN_DOC
+	SET DOCSTEP = DOCSTEP+1
+	WHERE DOCNO=#{docNo}
+</update>
+
+<!-- 반려 SGN_SIGN 테이블 UPDATE -->
+<update id="rejectSignResult" parameterType="map">
+	UPDATE SGN_SIGN
+	SET SSRESULT = 2,
+	SSCOMMENT = #{ssComment},
+	SIGNDATE = SYSDATE
+	WHERE DOCNO=#{no} AND MEMBER_NO=#{memberNo}
+</update>
+
+<!-- 반려 SGN_DOC 테이블 업데이트  -->
+<update id="rejectSignDoc" parameterType="map">
+	UPDATE SGN_DOC
+	SET DOCSTATUS=3
+	WHERE DOCNO=#{no}
+</update>
+
+<!-- pdf 화면 전환을 위한 dtNo 가져오기 -->
+<select id="selectDtNo" parameterType="_int" resultType="_int">
+	SELECT DTNO FROM SGN_DOC WHERE DOCNO=#{docNo}
+</select>
+</mapper>

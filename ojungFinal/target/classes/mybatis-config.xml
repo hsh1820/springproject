@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+	<!-- 1. 마이바티스 설정과 관련된 기본 세팅 선언 -->
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL" />
+	</settings>
+
+	<!-- 2. 별칭 작성 부분 -->
+	<typeAliases>
+		<typeAlias type="com.kh.ojungFinal.admin.model.vo.Member"
+			alias="AdminMember" />
+		<typeAlias
+			type="com.kh.ojungFinal.admin.model.vo.AdminMemberView"
+			alias="AdminMemberView" />
+		<!-- 메인에서 사용 할 결재대기리스트를 가져오기 위한 것 -->
+		<typeAlias type="com.kh.ojungFinal.admin.model.vo.MainSign"
+			alias="MainSign" />
+		<typeAlias
+			type="com.kh.ojungFinal.admin.model.vo.ProfileImage"
+			alias="ProfileImage" />
+		<!-- 메인에서 사용할 최신게시글 중 부서게시판 관련 -->
+		<typeAlias
+			type="com.kh.ojungFinal.admin.model.vo.MainDeptBoard"
+			alias="MainDeptBoard" />
+		<!-- 메인에서 사용할 최신게시글 중 협업게시판 관련 -->
+		<typeAlias
+			type="com.kh.ojungFinal.admin.model.vo.MainCollaboBoard"
+			alias="MainCollaboBoard" />
+		<!-- 출근/퇴근 관련 -->
+		<typeAlias type="com.kh.ojungFinal.admin.model.vo.Attendance" alias="Attendance" />
+		<!-- 메인에서 쓸 스케줄 -->
+		<typeAlias type="com.kh.ojungFinal.schedule.model.vo.Schedule" alias="Schedule" />
+		
+		<!-- 희원언니랑 겹치는 부분 -->
+		<typeAlias type="com.kh.ojungFinal.notice.model.vo.Notice" alias="Notice" />
+
+		<!-- 희원 -->
+		<typeAlias alias="NoticeCategory" type="com.kh.ojungFinal.notice.model.vo.NoticeCategory" />
+		<typeAlias alias="NoticeView" type="com.kh.ojungFinal.notice.model.vo.NoticeView" />
+		<typeAlias alias="NoticeFile" type="com.kh.ojungFinal.notice.model.vo.NoticeFile" />
+		<typeAlias type="com.kh.ojungFinal.notice.model.vo.NoticeReply" alias="NoticeReply"/>
+		
+		<!-- 혜선 -->
+		<typeAlias type="com.kh.ojungFinal.member.model.vo.MemberView" alias="MemberView"/>
+		<typeAlias type="com.kh.ojungFinal.member.model.vo.ProfileImage" alias="ProfileImage2"/>
+		<typeAlias type="com.kh.ojungFinal.member.model.vo.SignImage" alias="SignImage"/>
+		<typeAlias type="com.kh.ojungFinal.calender.model.vo.Calendar" alias="Calendar"/>
+		 
+		<!-- 송희 -->
+		<typeAlias type="com.kh.ojungFinal.collaboBoard.model.vo.CollaboBoard" alias="CollaboBoard"/>
+      	<typeAlias type="com.kh.ojungFinal.collaboBoard.model.vo.CollaboFile" alias="CollaboFile"/>
+      	<typeAlias type="com.kh.ojungFinal.collaboBoard.model.vo.DeptList" alias="DeptList"/>
+      	<typeAlias type="com.kh.ojungFinal.chatting.model.ChatDto" alias="ChatDto"/>
+		<typeAlias type="com.kh.ojungFinal.chatting.model.ChatListDto" alias="ChatListDto"/>
+		<typeAlias type="com.kh.ojungFinal.chatting.model.ChatMemberDto" alias="ChatMemberDto"/>
+		<typeAlias type="com.kh.ojungFinal.collaboBoard.model.vo.CollaboCmmt" alias="CollaboCmmt"/>
+		<typeAlias type="com.kh.ojungFinal.mail.model.vo.Mail" alias="Mail" />
+      	
+      	<!-- 원지 -->
+      	<typeAlias type="com.kh.ojungFinal.deptBoard.model.vo.DeptBoard" alias="DeptBoard"/>
+		<typeAlias type="com.kh.ojungFinal.deptBoard.model.vo.DeptBoardFile" alias="DeptBoardFile"/>
+		<typeAlias type="com.kh.ojungFinal.deptBoard.model.vo.DeptBoardReply" alias="DeptBoardReply"/>
+
+		<!-- 별하 -->
+		<typeAlias type="com.kh.ojungFinal.personalMessage.model.vo.PersonalMsg" alias="PersonalMsg"/>
+		<typeAlias type="com.kh.ojungFinal.personalMessage.model.vo.MsgSelect" alias="MsgSelect"/>
+	
+		<!-- 결재  부분-->
+		<typeAlias type="com.kh.ojungFinal.elec.model.vo.Sgn_doc" alias="Sgn_doc"/>
+      	<typeAlias type="com.kh.ojungFinal.elec.model.vo.Sgn_docFile" alias="Sgn_docFile"/>
+      	<typeAlias type="com.kh.ojungFinal.elec.model.vo.Sgn_docType" alias="Sgn_docType"/>
+      	<typeAlias type="com.kh.ojungFinal.elec.model.vo.Sgn_path" alias="Sgn_path"/>
+      	<typeAlias type="com.kh.ojungFinal.elec.model.vo.Sgn_pathUser" alias="Sgn_pathUser"/>
+      	<typeAlias type="com.kh.ojungFinal.elec.model.vo.Sgn_sign" alias="Sgn_sign"/>
+      	<typeAlias type="com.kh.ojungFinal.elec.model.vo.SignListView" alias="SignListView"/>
+      	<typeAlias type="com.kh.ojungFinal.elec.model.vo.SignTobeListView" alias="SignTobeListView"/>
+		<typeAlias type="com.kh.ojungFinal.elec.model.vo.EleDeptList" alias="EleDeptList" />
+		
+	</typeAliases>
+
+	<!-- 3. mapper 파일 등록 부분 -->
+	<mappers>
+		<mapper resource="/mappers/member-mapper.xml" />
+		<mapper resource="/mappers/admin-mapper.xml" />
+		<mapper resource="/mappers/ProjectChat.xml" />
+		<mapper resource="/mappers/notice-mapper.xml" />
+		<mapper resource="/mappers/collabo-mapper.xml"/>
+		<mapper resource="/mappers/deptBoard-mapper.xml"/>
+		<mapper resource="/mappers/PersonalMsg-mapper.xml"/>
+		<mapper resource="/mappers/elec-mapper.xml"/>
+		<mapper resource="/mappers/calendar-mapper.xml"/>
+		<mapper resource="/mappers/mail-mapper.xml"/>
+	</mappers>
+</configuration>

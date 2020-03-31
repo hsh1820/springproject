@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="ProjectChat">
+	<!-- 방 존재 여부 확인 & 방정보 가져오기 -->
+	<select id="getRoom" parameterType="java.lang.String" resultType="ChatDto">
+		SELECT * FROM FINAL_CHAT WHERE NAME = #{name} AND REMAINCOUNT != 0
+	</select>
+	
+	<!-- 방생성 -->
+	<insert id="createChatRoom" parameterType="ChatDto">
+		INSERT INTO FINAL_CHAT (NUM,NAME,PWD, TOTALCOUNT,REMAINCOUNT,CONTENT, FILE_PATH)
+		VALUES(CHAT_SEQ.NEXTVAL, #{name}, #{pwd}, #{totalCount}, 0, #{content}, #{filePath})
+	</insert>
+	
+	<!-- 존재하는 방 리스트 가져오기 -->
+	<select id="getRoomList" resultType="ChatDto">
+		SELECT * FROM FINAL_CHAT
+		WHERE REMAINCOUNT != 0
+	</select>
+	
+	<!-- 현재 어떤 방에 들어가있는지 데이터 추가하기 -->
+	<insert id="addRoomMember" parameterType="ChatMemberDto">
+		INSERT INTO FINAL_CHATMEMBER(NUM, NAME, ROOM, PRIROOM)
+		VALUES(CHAT_MEMBER_SEQ.NEXTVAL, #{name}, #{room}, #{priRoom})
+	</insert>
+	
+	<!-- 현재 아이디가 어떤 방에 들어가있는지 확인 -->
+	<select id="getRoomMember" parameterType="ChatMemberDto" resultType="ChatMemberDto">
+		SELECT NAME, ROOM, PRIROOM
+		FROM FINAL_CHATMEMBER
+		WHERE NAME = #{name}
+	</select>
+	
+	<!-- 같은 방에 존재하는 사람정보 모두 가져오기 -->
+	<select id="sameRoomList" parameterType="ChatMemberDto" resultType="ChatMemberDto">
+		SELECT NAME, ROOM, PRIROOM
+		FROM FINAL_CHATMEMBER
+		WHERE ROOM = #{room}
+	</select>
+	
+	<!-- 방변경 -->
+	<update id="updateRoomMember" parameterType="ChatMemberDto" >
+		<if test="room != null and room != ''">
+			UPDATE FINAL_CHATMEMBER SET ROOM = #{room}
+			WHERE NAME = #{name}
+		</if>
+		
+		<if test="priRoom != null and priRoom != ''">
+			UPDATE FINAL_CHATMEMBER SET PRIROOM = #{priRoom}
+			WHERE NAME = #{name}
+		</if> 
+	</update>
+	
+	<!-- 방정보 제거 -->
+	<delete id="deleteRoomMember" parameterType="ChatMemberDto">
+		DELETE FROM FINAL_CHATMEMBER
+		WHERE NAME = #{name}
+	</delete>
+	
+	<!-- 채팅방 입장 COUNT 증가 : CONTROLLER에서 처리 -->
+	<update id="updateChatCountInc" parameterType="ChatDto">
+		UPDATE FINAL_CHAT SET REMAINCOUNT = REMAINCOUNT + 1
+		WHERE NAME = #{name}
+	</update>
+	
+	<!-- 채팅방 입장 COUNT 감소 : CONTROLLER 에서 처리 -->
+	<update id="updateChatCountDec" parameterType="ChatDto">
+		UPDATE FINAL_CHAT SET REMAINCOUNT = REMAINCOUNT - 1
+		WHERE NAME = #{name}
+	</update>
+	
+	<!-- 채팅방 삭제 : REMAINCOUNT 가 0이 되면 삭제한다. -->
+	<delete id="deleteChat">
+		DELETE FROM FINAL_CHAT
+		WHERE REMAINCOUNT = 0
+	</delete>
+	
+	<!-- 검색한 방 리스트 가져오기 -->
+	<select id="searchRoomList" resultType="ChatDto" parameterType="java.lang.String">
+		SELECT * FROM FINAL_CHAT 
+		WHERE REMAINCOUNT != 0 AND NAME LIKE '%' || #{name} || '%'
+	</select>
+	
+	<!-- 현재 유저가 접속해 있는 방 번호 가져오기  -->
+	<select id="selectRoomNum" parameterType="string" resultType="_int">
+		SELECT FC.NUM
+		FROM FINAL_CHATMEMBER CM
+		JOIN FINAL_CHAT FC ON (CM.ROOM = FC.NAME)
+		WHERE cm.name = #{userName}
+	</select>
+	
+	<!-- 유저가 있는 방의 파일 경로 얻어오기 -->
+	<select id="selcetFilePath" parameterType="_int" resultType="string">
+		SELECT FILE_PATH
+		FROM FINAL_CHAT 
+		WHERE NUM = #{roomNum}
+	</select>
+</mapper>
